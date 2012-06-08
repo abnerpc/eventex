@@ -1,17 +1,20 @@
 # Django settings for src project.
 from unipath import Path
-PROJECT_DIR = Path(__file__).parent
-
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# project path
+PROJECT_DIR = Path(__file__).parent
+
+# project admin config
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
-
 MANAGERS = ADMINS
 
+# project database config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -22,6 +25,18 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+# project email config
+DEFAULT_FROM_EMAIL = 'contato.apceventex@gmail.com'
+if 'True' == os.environ.get('SEND_EMAIL', 'False'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

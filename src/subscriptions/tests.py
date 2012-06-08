@@ -5,6 +5,7 @@ from django.test import TestCase
 from .models import Subscription
 from django.db import IntegrityError
 from .forms import SubscriptionForm
+from django.core import mail
 
 class SubscriptionUrlTest(TestCase):
     def test_get_subscribe_page(self):
@@ -12,9 +13,9 @@ class SubscriptionUrlTest(TestCase):
         self.assertEquals(200, response.status_code)
 
 
-    def test_get_success_page(self):
-        response = self.client.get(r('subscriptions:success', args=[1]))
-        self.assertEquals(200, response.status_code)
+    # def test_get_success_page(self):
+    #         response = self.client.get(r('subscriptions:success', args=[1]))
+    #         self.assertEquals(200, response.status_code)
         
 
 class SubscribeViewTest(TestCase):
@@ -95,6 +96,10 @@ class SubscribeViewPostTest(TestCase):
     def test_save(self):
         "Post deve salvar Subscription no banco."
         self.assertTrue(Subscription.objects.exists())
+    
+    def test_email_sent(self):
+        "Post deve notificar visitante por email."
+        self.assertEquals(1, len(mail.outbox))
 
 class SubscribeViewInvalidPostTest(TestCase):
     
@@ -113,3 +118,38 @@ class SubscribeViewInvalidPostTest(TestCase):
     def test_must_not_save(self):
         "Dados não devem ser salvos."
         self.assertFalse(Subscription.objects.exists())
+        
+class SuccessViewTest(TestCase):
+    
+    def setUp(self):
+        s = Subscription.objects.create(
+            name = 'Abner Campanha',
+            cpf = '00000000000',
+            email = 'abnerpc@gmail.com',
+            phone = '12-34567890'
+        )
+        self.resp = self.client.get(r('subscriptions:success', args=[s.pk]))
+    
+    def test_get(self):
+        "Visita /inscricao/1/ e retorna 200."
+        self.assertEquals(200, self.resp.status_code)
+        
+    def test_template(self):
+        "Renderiza template."
+        self.assertTemplateUsed(self.resp, 'subscriptions/subscription_detail.html')
+        
+    def test_context(self):
+        "Verifica instância de subscription no contexto."
+        subscription = self.resp.context['subscription']
+        self.assertIsInstance(subscription, Subscription)
+        
+    def test_html(self):
+        "Página deve conter nome do cadastrado."
+        self.assertContains(self.resp,'Abner Campanha')
+        
+class SuccessViewNotFound(TestCase):
+    
+    def test_not_found(self):
+        "Acesso à inscrição não cadastrada deve retornar 404."
+        response = self.client.get(r('subscriptions:success', args=[0]))
+        self.assertEquals(404, response.status_code)

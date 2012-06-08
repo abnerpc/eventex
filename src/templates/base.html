@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+
+<head>
+	<title>EventeX</title>
+	<link type="text/css" href="{{ STATIC_URL }}css/styles.css" rel="stylesheet" media="screen" />
+</head>
+
+<body>
+	
+	<br/>
+	
+    <a href="{% url homepage %}"><img src="{{ STATIC_URL }}img/logo.jpg" /></a>
+    
+    <br/><br/>
+
+	<div class="title">
+		
+        <div class="main">
+            {% block title %}
+            {% endblock title %}
+        </div>
+		
+        <div class="desc">
+            {% block desc_title %}
+            {% endblock desc_title %}
+        </div>
+
+	</div>
+
+	<br/>
+	
+	<div class="content">
+        {% block content %}
+        {% endblock content %}
+	</div>
+	
+	<br/>
+	
+	<div class="footer">
+	
+		<div class="badge">
+			<a href="http://www.djangoproject.com/" target="_blank">
+				<img src="https://www.djangoproject.com/m/img/badges/djangopowered126x54.gif" 
+					border="0" alt="Powered by Django." title="Powered by Django." />
+			</a>
+		</div>
+		
+		<div class="text">
+			<a href="http://welcometothedjango.com.br" target="_blank">Welcome To The Django</a>
+		</div>
+	</div>
+
+</body>
+
+</html>
+		

@@ -12,7 +12,6 @@ class SubscriptionUrlTest(TestCase):
         response = self.client.get(r('subscriptions:subscribe'))
         self.assertEquals(200, response.status_code)
 
-
     # def test_get_success_page(self):
     #         response = self.client.get(r('subscriptions:success', args=[1]))
     #         self.assertEquals(200, response.status_code)

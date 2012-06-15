@@ -6,15 +6,26 @@ from .models import Subscription
 from django.db import IntegrityError
 from .forms import SubscriptionForm
 from django.core import mail
+from mock import Mock
+from .admin import SubscriptionAdmin, Subscription, admin
+
+from django.contrib.auth.models import User
 
 class SubscriptionUrlTest(TestCase):
+    
     def test_get_subscribe_page(self):
         response = self.client.get(r('subscriptions:subscribe'))
         self.assertEquals(200, response.status_code)
 
-    # def test_get_success_page(self):
-    #         response = self.client.get(r('subscriptions:success', args=[1]))
-    #         self.assertEquals(200, response.status_code)
+    def test_get_success_page(self):
+        s = Subscription.objects.create(
+            name = 'Abner Campanha',
+            cpf = '012345678901',
+            email = 'abnerpc@gmail.com',
+            phone = '12-34567891'
+        )
+        response = self.client.get(r('subscriptions:success', args=[s.pk]))
+        self.assertEquals(200, response.status_code)
         
 
 class SubscribeViewTest(TestCase):
@@ -42,8 +53,8 @@ class SubscribeViewTest(TestCase):
     def test_html(self):
         "O html deve conter os campos do formulário"
         self.assertContains(self.resp, '<form')
-        self.assertContains(self.resp, '<input', 6)
-        self.assertContains(self.resp, 'type="text"', 4)
+        self.assertContains(self.resp, '<input', 7)
+        self.assertContains(self.resp, 'type="text"', 5)
         self.assertContains(self.resp, 'type="submit"')
 
 class SubscriptionModelTest(TestCase):
@@ -71,14 +82,6 @@ class SubscriptionModelUniqueTest(TestCase):
         # Instancia a inscrição com CPF existente
         s = Subscription(name='Abner Campanha', cpf='012345678901',
             email='outro@email.com.br', phone='12-34567891')
-        # Verifica se ocorre o erro de integridade ao persistir.
-        self.assertRaises(IntegrityError, s.save)
-
-    def test_email_must_be_unique(self):
-        'Email deve ser único'
-        # Instancia a inscrição com Email existente
-        s = Subscription(name='Abner Campanha', cpf='00000000000',
-            email='abnerpc@gmail.com', phone='12-34567891')
         # Verifica se ocorre o erro de integridade ao persistir.
         self.assertRaises(IntegrityError, s.save)
         
@@ -152,3 +155,92 @@ class SuccessViewNotFound(TestCase):
         "Acesso à inscrição não cadastrada deve retornar 404."
         response = self.client.get(r('subscriptions:success', args=[0]))
         self.assertEquals(404, response.status_code)
+        
+class CustomActionTest(TestCase):
+        
+    def setUp(self):
+        Subscription.objects.create(
+            name='Abner Campanha',
+            cpf='01234567890',
+            email='abnerpc@gmail.com',
+            phone='12-34567890'
+        )
+        self.modeladmin = SubscriptionAdmin(Subscription, admin.site)
+        # action!
+        self.modeladmin.mark_as_paid(Mock(), Subscription.objects.all())
+        
+    def test_update(self):
+        'Os dados devem ser atualizados como pago de acordo com o Queryset.'
+        self.assertEqual(1, Subscription.objects.filter(paid=True).count())
+
+class ExportSubscriptionViewTest(TestCase):
+    def setUp(self):
+        User.objects.create_superuser('admin', 'admin@admin.com', 'admin')
+        assert self.client.login(username='admin', password='admin')
+        self.resp = self.client.get(r('admin:export_subscriptions'))
+        
+    def test_get(self):
+        u'Sucesso ao acessar url de download do arquivo csv.'
+        self.assertEqual(200, self.resp.status_code)
+        
+    def test_content_type(self):
+        u'Content type deve ser text/csv.'
+        self.assertEqual('text/csv', self.resp['Content-Type'])
+        
+    def test_attachment(self):
+        u'Header indicando ao browser que a resposta é um arquivo a ser salvo'
+        self.assertTrue('attachment;' in self.resp['Content-Disposition'])
+        
+class ExportSubscriptionsNotFound(TestCase):
+    def test_404(self):
+        u'Login é exigido para download do csv'
+        '''
+        Quando o usuário não está autenticado
+        o admin responde 200 e renderiza o html de login 
+        '''
+        response = self.client.get(r('admin:export_subscriptions'))
+        self.assertTemplateUsed(response, 'admin/login.html')
+        
+class SubscriptionFormTest(TestCase):
+    
+    def test_cpf_has_only_digits(self):
+        u'CPF deve ter apenas dígitos.'
+        form = self.make_and_validade_form(cpf='ABCDE000000')
+        self.assertDictEqual(
+            form.errors,
+            {'cpf': [u'O CPF deve conter apenas números']}
+        )
+    
+    def test_cpf_has_11_digits(self):
+        u'CPF deve ter exatamente 11 dígitos.'
+        form = self.make_and_validade_form(cpf='000000000012')
+        self.assertDictEqual(
+            form.errors,
+            {'cpf': [u'O CPF deve ter 11 dígitos']}
+        )
+    
+    def test_must_inform_email_or_phone(self):
+        u'Email e Phone são opcionais, mas ao menos 1 precisa ser informado.'
+        form = self.make_and_validade_form(email='', phone='')
+        self.assertDictEqual(
+            form.errors,
+            {'__all__': [u'Informe seu e-mail ou telefone']}
+        )
+        
+    def make_and_validade_form(self, **kwargs):
+        data = dict(
+            name='Abner Campanha',
+            email='abnerpc@gmail.com',
+            cpf='00000000000',
+            phone='12-34567890'
+        )
+        data.update(kwargs)
+        form = SubscriptionForm(data)
+        form.is_valid()
+        return form
+        
+        
+        
+        
+        
+        

@@ -15,12 +15,7 @@ def subscribe(request):
         return new(request)
 
 def new(request):
-    form = SubscriptionForm(initial={
-        'name': 'Entre o seu nome',
-        'cpf': 'Digite o seu CPF sem pontos',
-        'email': 'Informe o seu email',
-        'phone': 'Qual seu telefone de contato?',
-    })
+    form = SubscriptionForm()
     return direct_to_template(request, 'subscriptions/subscription_form.html', {'form': form})
 
 def create(request):

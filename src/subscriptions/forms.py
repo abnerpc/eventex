@@ -1,22 +1,31 @@
 # coding: utf-8
 from django import forms
 from .models import Subscription
+import re
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db.models.base import Empty
 
 def CpfValidator(value):
+    value = clean_mask_field(value)
     if not value.isdigit():
         raise ValidationError(_(u'O CPF deve conter apenas números'))
     if len(value) != 11:
         raise ValidationError(_(u'O CPF deve ter 11 dígitos'))
 
+def clean_mask_field(value):
+    return "".join(re.findall(r"\d", value)) 
+
 class PhoneWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
+        attrs_1 = attrs or {}
+        attrs_2 = attrs_1.copy()
+        attrs_1.update({'size':'1'})
+        attrs_2.update({'size':'10'})
         widgets = (
-            forms.TextInput(attrs=attrs),
-            forms.TextInput(attrs=attrs)
+            forms.TextInput(attrs=attrs_1),
+            forms.TextInput(attrs=attrs_2)
         )
         super(PhoneWidget, self).__init__(widgets, attrs)
         
@@ -30,8 +39,8 @@ class PhoneField(forms.MultiValueField):
     
     def __init__(self, *args, **kwargs):
         fields = (
-            forms.IntegerField(),
-            forms.IntegerField()
+            forms.CharField(),
+            forms.CharField()
         )
         super(PhoneField, self).__init__(fields, *args, **kwargs)
         
@@ -46,9 +55,9 @@ class PhoneField(forms.MultiValueField):
             
 class SubscriptionForm(forms.ModelForm):
     
-    name = forms.CharField(label=_('Nome'), max_length=100)
+    name = forms.CharField(label=_('Nome'), max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
     cpf = forms.CharField(label=_('CPF'), validators=[CpfValidator])
-    email = forms.CharField(label=_('E-mail'), required=False)
+    email = forms.EmailField(label=_('E-mail'), required=False, widget=forms.TextInput(attrs={'size':'30'}))
     phone = PhoneField(label=_('Telefone'), required=False)
     
     def _unique_check(self, fieldname, error_message):

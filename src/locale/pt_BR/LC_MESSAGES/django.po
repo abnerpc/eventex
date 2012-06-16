@@ -1,0 +1,67 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-06-15 01:15-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: subscriptions/admin.py:28
+#, python-format
+msgid "%(count)d inscrição foi marcada como paga."
+msgid_plural "%(count)d inscrições foram marcadas como pagas."
+msgstr[0] ""
+msgstr[1] ""
+
+#: subscriptions/admin.py:34
+msgid "Marcar como pagas"
+msgstr ""
+
+#: subscriptions/forms.py:11
+msgid "O CPF deve conter apenas números"
+msgstr ""
+
+#: subscriptions/forms.py:13
+msgid "O CPF deve ter 11 dígitos"
+msgstr ""
+
+#: subscriptions/forms.py:49
+msgid "Nome"
+msgstr ""
+
+#: subscriptions/forms.py:50
+msgid "CPF"
+msgstr ""
+
+#: subscriptions/forms.py:51
+msgid "E-mail"
+msgstr ""
+
+#: subscriptions/forms.py:52
+msgid "Telefone"
+msgstr ""
+
+#: subscriptions/forms.py:63
+msgid "CPF já inscrito."
+msgstr ""
+
+#: subscriptions/forms.py:66
+msgid "E-mail já inscrito."
+msgstr ""
+
+#: subscriptions/forms.py:72
+msgid "Informe seu e-mail ou telefone"
+msgstr ""

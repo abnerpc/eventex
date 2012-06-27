@@ -1,28 +1,18 @@
 # coding: utf-8
 from django import forms
 from .models import Subscription
-import re
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db.models.base import Empty
-
-def CpfValidator(value):
-    value = clean_mask_field(value)
-    if not value.isdigit():
-        raise ValidationError(_(u'O CPF deve conter apenas números'))
-    if len(value) != 11:
-        raise ValidationError(_(u'O CPF deve ter 11 dígitos'))
-
-def clean_mask_field(value):
-    return "".join(re.findall(r"\d", value)) 
-
+from django.contrib.localflavor.br.forms import BRCPFField
+    
 class PhoneWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
         attrs_1 = attrs or {}
         attrs_2 = attrs_1.copy()
-        attrs_1.update({'size':'1'})
-        attrs_2.update({'size':'10'})
+        attrs_1.update({'size':'1','maxlength':'2'})
+        attrs_2.update({'size':'10', 'maxlength':'8'})
         widgets = (
             forms.TextInput(attrs=attrs_1),
             forms.TextInput(attrs=attrs_2)
@@ -40,7 +30,7 @@ class PhoneField(forms.MultiValueField):
     def __init__(self, *args, **kwargs):
         fields = (
             forms.CharField(),
-            forms.CharField()
+            forms.CharField(max_length=8,)
         )
         super(PhoneField, self).__init__(fields, *args, **kwargs)
         
@@ -56,7 +46,7 @@ class PhoneField(forms.MultiValueField):
 class SubscriptionForm(forms.ModelForm):
     
     name = forms.CharField(label=_('Nome'), max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    cpf = forms.CharField(label=_('CPF'), validators=[CpfValidator])
+    cpf = BRCPFField(label=_('CPF'), max_length=11, widget=forms.TextInput(attrs={'size':'20'}))
     email = forms.EmailField(label=_('E-mail'), required=False, widget=forms.TextInput(attrs={'size':'30'}))
     phone = PhoneField(label=_('Telefone'), required=False)
     
@@ -68,9 +58,6 @@ class SubscriptionForm(forms.ModelForm):
             return self.cleaned_data[fieldname]
         raise forms.ValidationError(error_message)
     
-    def clean_cpf(self):
-        return self._unique_check('cpf', _(u'CPF já inscrito.'))
-    
     def clean_email(self):
         return self._unique_check('email', _(u'E-mail já inscrito.'))
          
@@ -78,7 +65,7 @@ class SubscriptionForm(forms.ModelForm):
         super(SubscriptionForm, self).clean()
         
         if not self.cleaned_data.get('email') and not self.cleaned_data.get('phone'):
-            raise forms.ValidationError(_(u'Informe seu e-mail ou telefone'))
+            raise forms.ValidationError(_(u'Informe seu e-mail ou telefone.'))
        
         return self.cleaned_data
         

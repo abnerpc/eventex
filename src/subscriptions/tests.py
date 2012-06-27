@@ -15,18 +15,7 @@ class SubscriptionUrlTest(TestCase):
     
     def test_get_subscribe_page(self):
         response = self.client.get(r('subscriptions:subscribe'))
-        self.assertEquals(200, response.status_code)
-
-    def test_get_success_page(self):
-        s = Subscription.objects.create(
-            name = 'Abner Campanha',
-            cpf = '012345678901',
-            email = 'abnerpc@gmail.com',
-            phone = '12-34567891'
-        )
-        response = self.client.get(r('subscriptions:success', args=[s.pk]))
-        self.assertEquals(200, response.status_code)
-        
+        self.assertEquals(200, response.status_code)        
 
 class SubscribeViewTest(TestCase):
 
@@ -205,27 +194,20 @@ class SubscriptionFormTest(TestCase):
     
     def test_cpf_has_only_digits(self):
         u'CPF deve ter apenas dígitos.'
-        form = self.make_and_validade_form(cpf='ABCDE000000')
-        self.assertDictEqual(
-            form.errors,
-            {'cpf': [u'O CPF deve conter apenas números']}
-        )
+        form = self.make_and_validade_form(cpf='0000000000a')
+        self.assertDictEqual(form.errors, {'cpf': [u'Este campo requer somente números.']})
     
     def test_cpf_has_11_digits(self):
-        u'CPF deve ter exatamente 11 dígitos.'
+        u'CPF deve ter 11 dígitos.'
         form = self.make_and_validade_form(cpf='000000000012')
-        self.assertDictEqual(
-            form.errors,
-            {'cpf': [u'O CPF deve ter 11 dígitos']}
+        self.assertDictEqual(form.errors,
+            {'cpf': [u'Certifique-se de que o valor tenha no máximo 11 caracteres (ele possui 12).']}
         )
     
     def test_must_inform_email_or_phone(self):
         u'Email e Phone são opcionais, mas ao menos 1 precisa ser informado.'
         form = self.make_and_validade_form(email='', phone='')
-        self.assertDictEqual(
-            form.errors,
-            {'__all__': [u'Informe seu e-mail ou telefone']}
-        )
+        self.assertDictEqual(form.errors, {'__all__': [u'Informe seu e-mail ou telefone.']})
         
     def make_and_validade_form(self, **kwargs):
         data = dict(

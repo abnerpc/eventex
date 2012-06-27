@@ -13,3 +13,6 @@ body { background: #234f32 }
 .footer .text {  padding-top:20px; font: 12px/1.4em Verdana,sans-serif; }
 .footer .text a { color: #FFC757; cursor:auto; text-decoration: none; float: left }
 .footer .text a:hover { color: #FFE761 }
+
+.fieldWrapper { margin-bottom: 10px }
+

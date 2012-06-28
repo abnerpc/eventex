@@ -2,7 +2,9 @@
 
 from django.db import models
 
+
 class Subscription(models.Model):
+
     name = models.CharField('Nome', max_length=100)
     cpf = models.CharField('CPF', max_length=11, unique=True)
     email = models.EmailField('E-mail', blank=True)
@@ -12,7 +14,7 @@ class Subscription(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
     class Meta:
         ordering = ["created_at"]
         verbose_name = u"Inscrição"

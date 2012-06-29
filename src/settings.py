@@ -1,4 +1,5 @@
 # Django settings for src project.
+
 from unipath import Path
 import os
 

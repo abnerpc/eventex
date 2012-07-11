@@ -1,11 +1,15 @@
-# coding: utf-8
-
 {% extends 'base.html' %}
 
 {% block content %}
+
     {% if speaker.avatar %}
         <p><img src="{{ speaker.avatar.url }}" alt="{{ speaker.name }}" /></p>
     {% endif %}
+
     <h4><a href="{{ speaker.url }}">{{ speaker.name }}</a></h4>
+    (<a href="{% url core:talks_by_speaker speaker.slug %}">palestras</a>)
+
     <p>{{ speaker.description }}</p>
+
+    <p><a href="{% url core:talks %}">voltar</a></p>
 {% endblock content %}

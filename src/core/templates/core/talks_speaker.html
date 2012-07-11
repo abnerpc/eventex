@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% for talk in talks %}
+        {% include 'core/talks_snippet.html' %}
+    {% empty %}
+        <p>Não existem palestras.</p>
+    {% endfor %}
+
+    <a href="{% url core:talks %}">Todas</a>
+{% endblock content %}

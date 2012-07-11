@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from datetime import time
 
 
 class Speaker(models.Model):
@@ -47,3 +48,62 @@ class Contact(models.Model):
     phones = KindContactManager('P')
     emails = KindContactManager('E')
     faxes = KindContactManager('F')
+
+
+class PeriodManager(models.Manager):
+    """Manager para mornings e afternoons talks"""
+    midday = time(12)
+
+    def at_morning(self):
+        qs = self.filter(start_time__lt=self.midday)
+        qs = qs.order_by('start_time')
+        return qs
+
+    def at_afternoon(self):
+        qs = self.filter(start_time__gte=self.midday)
+        qs = qs.order_by('start_time')
+        return qs
+
+
+class Talk(models.Model):
+    """Classe que representa tabela Talk"""
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    start_time = models.TimeField(blank=True)
+    speakers = models.ManyToManyField('Speaker', verbose_name=_('palestrante'))
+
+    objects = PeriodManager()
+
+    def __unicode__(self):
+        return self.title
+
+    @property
+    def slides(self):
+        return self.media_set.filter(type='SL')
+
+    @property
+    def videos(self):
+        return self.media_set.filter(type='YT')
+
+class Course(Talk):
+    """Classe que representa um Course"""
+    slots = models.IntegerField()
+    notes = models.TextField()
+
+    objects = PeriodManager()
+
+
+class Media(models.Model):
+    """Classe que representa as Medias de um Course"""
+    MEDIAS = (
+        ('SL', 'SlideShare'),
+        ('YT', 'Youtube'),
+    )
+
+    talk = models.ForeignKey('Talk')
+    type = models.CharField(max_length=2, choices=MEDIAS)
+    title = models.CharField(u'Título', max_length=255)
+    media_id = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.talk.title, self.title)

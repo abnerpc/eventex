@@ -1,0 +1,5 @@
+django
+Unipath
+psycopg2
+South
+mock

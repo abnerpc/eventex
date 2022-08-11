@@ -4,11 +4,9 @@
 #
 #    pip-compile requirements.in
 #
---extra-index-url https://pypi.fury.io/CnVyuvjFzaw4eastdYRc/loadsmart/
-
 asgiref==3.4.1
     # via django
-django==3.2.9
+django==3.2.15
     # via -r requirements.in
 mock==4.0.3
     # via -r requirements.in
